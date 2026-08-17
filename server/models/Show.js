@@ -10,6 +10,6 @@ const showSchema = new mongoose.Schema(
   { minimize: false },
 );
 
-const Show = mongoose.Model("Show", showSchema);
+const Show = mongoose.model("Show", showSchema);
 
 export default Show;
