@@ -95,9 +95,9 @@ export const addShow = async (req, res) => {
 
 export const getShows = async (req, res) => {
   try {
-    const shows = (
-      await Show.find({ showDateTime: { $gte: new Date() } }).populate("movie")
-    ).toSorted({ showDateTime: 1 });
+    const shows = await Show.find({ showDateTime: { $gte: new Date() } })
+      .populate("movie")
+      .sort({ showDateTime: 1 });
 
     const uniqueShows = new Set(shows.map((show) => show.movie));
 
@@ -111,25 +111,28 @@ export const getShows = async (req, res) => {
   }
 };
 
-export const getShow = async(req, res) => {
+export const getShow = async (req, res) => {
   try {
-    const {movieId} = req.params
+    const { movieId } = req.params;
 
-    const shows = await Show.find({movie: movieId, showDateTime: {$gte: new Date ()}})
+    const shows = await Show.find({
+      movie: movieId,
+      showDateTime: { $gte: new Date() },
+    });
 
-    const movie = await Movie.findById(movieId)
-    const dateTime = {}
+    const movie = await Movie.findById(movieId);
+    const dateTime = {};
 
     shows.forEach((show) => {
-      const data = show.showDateTime.toISOString().split("T")[0]
-      if(!dateTime[date]) {
-        dateTime[date] = []
+      const data = show.showDateTime.toISOString().split("T")[0];
+      if (!dateTime[date]) {
+        dateTime[date] = [];
       }
-      dateTime[date].push({ time: show.showDateTime, showId: show._id})
-    })
-    res.json({success: true, movie, dateTime})
+      dateTime[date].push({ time: show.showDateTime, showId: show._id });
+    });
+    res.json({ success: true, movie, dateTime });
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });
   }
-}
+};
