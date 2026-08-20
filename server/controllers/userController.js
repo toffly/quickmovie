@@ -1,16 +1,41 @@
+import { clerkClient } from "@clerk/express";
 import Booking from "../models/Booking.js";
 
 export const getUserBookings = async (req, res) => {
-    try {
-        const user = req.auth().userId
+  try {
+    const user = req.auth().userId;
 
-        const bookings = await Booking.find({user}).populate({
-            path: "show",
-            populate: {path: "movie"}
-        }).sort({createdAt: -1})
-        res.json({success: true, bookings})
-    } catch (error) {
-        console.error(error);
+    const bookings = await Booking.find({ user })
+      .populate({
+        path: "show",
+        populate: { path: "movie" },
+      })
+      .sort({ createdAt: -1 });
+    res.json({ success: true, bookings });
+  } catch (error) {
+    console.error(error);
     res.json({ success: false, message: error.message });
+  }
+};
+
+export const addFavorites = async (req, res) => {
+  try {
+    const {movieId} = req.body
+    const userId = req.auth().userId
+    const user = await clerkClient.users.getUser(userId)
+
+    if(!user.privateMetadata.favorites){
+        user.privateMetadata.favorites = []
     }
-}
+    if(!user.privateMetadata.favorites.includes(movieId)){
+        user.privateMetadata.favorites.push(movieId)
+    }
+
+    await clerkClient.users.updateUserMetadata(userid, {privateMetadata: user.privateMetadata})
+
+    res.json({success: true, message: "Favorite added successfully."})
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};
