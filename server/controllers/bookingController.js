@@ -41,7 +41,7 @@ export const createBooking = async (req, res) => {
             showData.occupiedSeats[seat] = userId
         })
 
-        showData,markModified('occupiedSeats')
+        showData.markModified('occupiedSeats')
 
         await showData.save()
 
