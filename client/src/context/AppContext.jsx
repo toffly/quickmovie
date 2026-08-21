@@ -1,11 +1,11 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
-import { useAuth, useUser } from "@clerk/react";
 import { useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useAuth, useUser } from "@clerk/react";
 
-axios.defaults.baseUrl = import.meta.env.VITE_BASE_URL;
+axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
 
 export const AppContext = createContext();
 
@@ -41,7 +41,7 @@ export const AppProvider = ({ children }) => {
       if (data.success) {
         setShows(data.shows);
       } else {
-        // toast.error(data.message);
+        toast.error(data.message);
       }
     } catch (error) {
       console.error(error);
