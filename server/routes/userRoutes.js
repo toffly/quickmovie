@@ -1,6 +1,5 @@
 import express from "express"
-import { protectAdmin } from "../middleware/auth"
-import { getFavorites, getUserBookings, updateFavorites } from "../controllers/userController"
+import { getFavorites, getUserBookings, updateFavorites } from "../controllers/userController.js"
 
 const userRouter = express.Router()
 
