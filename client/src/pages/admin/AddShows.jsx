@@ -60,44 +60,46 @@ const AddShows = () => {
   };
 
   const handleSubmit = async () => {
+    if (
+      !selectedMovie ||
+      Object.keys(dateTimeSelection).length === 0 ||
+      !showPrice
+    ) {
+      return toast.error("Missing required fields.");
+    }
+
+    setAddingShow(true);
+
     try {
-      setAddingShow(true);
-
-      if (
-        !selectedMovie ||
-        Object.keys(dateTimeSelection).length === 0 ||
-        !showPrice
-      ) {
-        return toast("Missing required fields.");
-      }
-
-      const showsInput = Object.entries(dateTimeSelection).map(
-        ([date, time]) => ({ date, time }),
+      const { data } = await axios.post(
+        "/api/show/add",
+        {
+          movieId: selectedMovie,
+          showsInput: Object.entries(dateTimeSelection).map(([date, time]) => ({
+            date,
+            time,
+          })),
+          showPrice: Number(showPrice),
+        },
+        {
+          headers: { Authorization: `Bearer ${await getToken()}` },
+        },
       );
 
-      const payload = {
-        movieId: selectedMovie,
-        showsInput,
-        showPrice: Number(showPrice),
-      };
-
-      const { data } = axios.post("/api/show/add", payload, {
-        headers: { Authorization: `Bearer ${await getToken()}` },
-      });
-
-      if(data.success){
-        toast.success(data.message)
-        setSelectedMovie(null)
-        setDateTimeSelection({})
-        setShowPrice("")
+      if (data.success) {
+        toast.success(data.message);
+        setSelectedMovie(null);
+        setDateTimeSelection({});
+        setShowPrice("");
       } else {
-        toast.error(data.message)
+        toast.error(data.message);
       }
     } catch (error) {
-      console.error("Submission error:", error)
-      toast.error('An error occurred. Please try again')
+      console.error("Submission error:", error);
+      toast.error("An error occurred. Please try again");
+    } finally {
+      setAddingShow(false);
     }
-    setAddingShow(false)
   };
 
   useEffect(() => {
