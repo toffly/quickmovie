@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import Title from "../../components/admin/Title";
-import { dummyShowsData } from "../../assets/assets";
 import Loading from "../../components/Loading";
 import { CheckIcon, DeleteIcon, StarIcon } from "lucide-react";
 import kConverter from "../../lib/kConverter";
+import { useAppContext } from "../../context/AppContext";
 
 const AddShows = () => {
+  const { axios, getToken, user, image_base_url } = useAppContext();
+
   const currency = import.meta.env.VITE_CURRENCY;
   const [nowPlayingMovies, setNowPlayingMovies] = useState([]);
   const [selectedMovie, setSelectedMovie] = useState(null);
@@ -14,7 +16,16 @@ const AddShows = () => {
   const [showPrice, setShowPrice] = useState("");
 
   const fetchNowPlayingMovies = async () => {
-    setNowPlayingMovies(dummyShowsData);
+    try {
+      const { data } = await axios.get("/api/show/now-playing", {
+        headers: { Authorization: `Bearer ${await getToken()}` },
+      });
+      if (data.success) {
+        setNowPlayingMovies(data.movies);
+      }
+    } catch (error) {
+      console.error("Error fetching movies:", error);
+    }
   };
 
   const handleDateTimeAdd = () => {
@@ -35,6 +46,7 @@ const AddShows = () => {
     setDateTimeSelection((prev) => {
       const filteredTimes = prev[date].filter((t) => t !== time);
       if (filteredTimes.length === 0) {
+        // eslint-disable-next-line no-unused-vars
         const { [date]: _, ...rest } = prev;
         return rest;
       }
@@ -46,10 +58,12 @@ const AddShows = () => {
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      await fetchNowPlayingMovies();
-    };
-    fetchData();
+    if (user) {
+      const fetchData = async () => {
+        await fetchNowPlayingMovies();
+      };
+      fetchData();
+    }
   }, []);
 
   return nowPlayingMovies.length > 0 ? (
@@ -66,7 +80,7 @@ const AddShows = () => {
             >
               <div className="relative rounded-lg overflow-hidden">
                 <img
-                  src={movie.poster_path}
+                  src={image_base_url + movie.poster_path}
                   alt="movie"
                   className="w-full object-cover brightness-90"
                 />
